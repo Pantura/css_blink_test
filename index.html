@@ -117,6 +117,9 @@
                 function toggleValue(value) {
                     const main = document.querySelector("main");
                     main.classList.toggle("blink", value);
+                    if (value === false) {
+                        this.animations = null;
+                    }
                 }
 
                 function findAnimations() {
@@ -191,10 +194,11 @@
                         } else if (radio.target.value === "blink") {
                             toggleValue(true);
                             disableThrottler();
+                            
+                        } else if (radio.target.value === "throttle") {
                             if (animations === null) {
                                 setTimeout(findAnimations);
                             }
-                        } else if (radio.target.value === "throttle") {
                             toggleValue(true);
                             enableThrottler(true);
                         }
