@@ -192,11 +192,13 @@
                             disableThrottler();
                             toggleValue(true);
                         } else if (radio.target.value === "throttle") {
-                            toggleValue(true);
-                            if (animations === null) {
-                                findAnimations();
-                            }
-                            enableThrottler(true);
+                            requestAnimationFrame(() => {
+                                toggleValue(true);
+                                if (animations === null) {
+                                    findAnimations();
+                                }
+                                enableThrottler(true);
+                            });
                         }
                     })
                 );
