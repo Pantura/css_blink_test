@@ -72,7 +72,6 @@
                             type="radio"
                             name="typeRadio"
                             value="throttle"
-                            disabled
                         />
                     </label>
                 </fieldset>
@@ -137,9 +136,6 @@
                                 )
                         );
                     }
-                    document.querySelector(
-                        "input[value=throttle]"
-                    ).disabled = false;
                 }
 
                 function enableThrottler(value) {
@@ -197,7 +193,7 @@
                             
                         } else if (radio.target.value === "throttle") {
                             if (animations === null) {
-                                setTimeout(findAnimations);
+                                findAnimations();
                             }
                             toggleValue(true);
                             enableThrottler(true);
