@@ -1,0 +1,221 @@
+<html>
+    <head>
+        <style>
+            legend {
+                font-weight: bold;
+            }
+            main {
+                position: relative;
+                display: grid;
+                grid-template-columns: repeat(auto-fill, 10px);
+                gap: 10px;
+            }
+            .target-el {
+                height: 10px;
+                width: 10px;
+                background: red;
+                cursor: pointer;
+            }
+            main.blink .target-el {
+                animation: blink 1s linear infinite;
+            }
+
+            .touch-disabled .target-el {
+                pointer-events: none;
+                cursor: pointer;
+                user-select: none;
+            }
+
+            .overlay {
+                position: absolute;
+                pointer-events: all;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgb(143, 255, 158);
+                opacity: 0.5;
+            }
+
+            .test-area {
+                width: 100%;
+                height: 300px;
+                background-color: aqua;
+            }
+
+            @keyframes blink {
+                0% {
+                    opacity: 100%;
+                }
+                50% {
+                    opacity: 30%;
+                }
+                100% {
+                    opcaity: 100%;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <form>
+                <fieldset>
+                    <legend>Blinking</legend>
+                    <label>Off
+                        <input type="radio" name="typeRadio" value="off" checked/>
+                    </label>
+                    <label>Blink
+                        <input type="radio" name="typeRadio" value="blink" />
+                    </label>
+                    <label>Throttle
+                        <input
+                            type="radio"
+                            name="typeRadio"
+                            value="throttle"
+                            disabled
+                        />
+                    </label>
+                </fieldset>
+                <fieldset>
+                    <legend>Enable touch / pointer</legend>
+                    <label
+                        >On
+                        <input type="radio" name="pointerRadio" value="on" checked />
+                    </label>
+                    <label>
+                        Off
+                        <input type="radio" name="pointerRadio" value="off" />
+                    </label>
+                </fieldset>
+                <fieldset>
+                <legend>Overlay</legend>
+                    <label
+                        >Off
+                        <input type="radio" name="overlayRadio" value="off" checked/>
+                    </label>
+                    <label>
+                        On
+                        <input type="radio" name="overlayRadio" value="on" />
+                    </label>
+                </fieldset>
+            </form>
+        </div>
+        <main></main>
+    </body>
+    <footer>
+        <div class="test-area"></div>
+        <script>
+            (function () {
+                "use strict";
+                const TARGET_SELECTOR = ".target-el";
+                const ALARM_BLINK_NAME = "blink";
+
+                let interval = null;
+                let animationState = 0;
+                let animations = null;
+
+                function toggleValue(value) {
+                    const main = document.querySelector("main");
+                    main.classList.toggle("blink", value);
+                }
+
+                function findAnimations() {
+                    animations = [];
+                    const elements = document.body.querySelectorAll(
+                        TARGET_SELECTOR
+                    );
+                    for (let element of elements) {
+                        animations.push(
+                            element
+                                .getAnimations()
+                                .find(
+                                    anim =>
+                                        anim.animationName === ALARM_BLINK_NAME
+                                )
+                        );
+                    }
+                    document.querySelector(
+                        "input[value=throttle]"
+                    ).disabled = false;
+                }
+
+                function enableThrottler(value) {
+                    animations.forEach(anim => anim.pause());
+                    interval = setInterval(advanceAnimation, 1000);
+                }
+                function disableThrottler() {
+                    if (interval != null) {
+                        clearInterval(interval);
+                        animations.forEach(anim => anim.play());
+                    }
+                }
+
+                function advanceAnimation() {
+                    animations.forEach(
+                        anim => (anim.currentTime = (animationState % 2) * 500)
+                    );
+                    animationState++;
+                }
+
+                function disableTouch(value) {
+                    const main = document.querySelector("main");
+                    main.classList.toggle("touch-disabled", value);
+                }
+
+                function enableOverlay(value) {
+                    const main = document.querySelector("main");
+                    if (value) {
+                        const overlay = document.createElement("div");
+                        overlay.className = "overlay"
+                        main.append(overlay);
+                    } else {
+                        const overlay = document.querySelector(".overlay");
+                        overlay.remove();
+                    }
+
+                }
+
+                const main = document.querySelector("main");
+                Array.from({ length: 1000 }).map(() => {
+                    main.appendChild(
+                        document.createElement("div")
+                    ).classList.value = "target-el";
+                });
+
+                document.querySelectorAll("input[name=typeRadio").forEach(el =>
+                    el.addEventListener("change", function (radio) {
+                        console.log("checked radio", radio.target.value);
+                        if (radio.target.value === "off") {
+                            toggleValue(false);
+                            disableThrottler();
+                        } else if (radio.target.value === "blink") {
+                            toggleValue(true);
+                            disableThrottler();
+                            if (animations === null) {
+                                setTimeout(findAnimations);
+                            }
+                        } else if (radio.target.value === "throttle") {
+                            toggleValue(true);
+                            enableThrottler(true);
+                        }
+                    })
+                );
+
+                document
+                    .querySelectorAll("input[name=pointerRadio")
+                    .forEach(el =>
+                        el.addEventListener("change", function (radio) {
+                            disableTouch(radio.target.value === "off");
+                        })
+                    );
+                document
+                    .querySelectorAll("input[name=overlayRadio")
+                    .forEach(el =>
+                        el.addEventListener("change", function (radio) {
+                            enableOverlay(radio.target.value === "on");
+                        })
+                    );
+            })();
+        </script>
+    </footer>
+</html>
