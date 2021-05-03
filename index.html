@@ -145,6 +145,7 @@
                 function disableThrottler() {
                     if (interval != null) {
                         clearInterval(interval);
+                        interval = null;
                         animations.forEach(anim => anim.play());
                     }
                 }
