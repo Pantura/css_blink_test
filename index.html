@@ -185,12 +185,11 @@
                     el.addEventListener("change", function (radio) {
                         console.log("checked radio", radio.target.value);
                         if (radio.target.value === "off") {
+                            disableThrottler();
                             toggleValue(false);
-                            disableThrottler();
                         } else if (radio.target.value === "blink") {
-                            toggleValue(true);
                             disableThrottler();
-                            
+                            toggleValue(true);
                         } else if (radio.target.value === "throttle") {
                             toggleValue(true);
                             if (animations === null) {
